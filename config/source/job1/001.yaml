@@ -1,0 +1,6 @@
+mqtt:
+  host: broker.emqx.io:1883
+  topic: testqs/A
+
+
+

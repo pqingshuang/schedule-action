@@ -1,0 +1,15 @@
+[schedule_001]
+interval = 0
+worker = 'worker/always/main.go'
+argument = 'config/source/always'
+
+
+[schedule_002]
+interval = 0
+worker = ''
+argument = ''
+
+[schedule_003]
+interval = 0
+worker = ''
+argument = ''
