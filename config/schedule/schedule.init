@@ -1,6 +1,6 @@
 [schedule_001]
 interval = 0
-worker = 'worker/always/main.go'
+worker = 'worker/always/main'
 argument = 'config/source/always'
 
 
