@@ -6,7 +6,7 @@ import (
 	"os/exec"
 )
 
-func main() {
+func test() {
 	out, err := exec.Command("worker/always/main").CombinedOutput()
 	if err != nil {
 		log.Fatal(err)

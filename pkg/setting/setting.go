@@ -1,8 +1,11 @@
 package setting
 
 import (
+	"fmt"
 	"gopkg.in/ini.v1"
 	"log"
+	"os"
+	"time"
 )
 
 var Cfg *ini.File
@@ -15,10 +18,30 @@ type schedule struct {
 
 func InitSetting() *ini.File {
 	var err error
-	Cfg, err = ini.Load("config/schedule/schedule.init")
+	path, err := os.Getwd()
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println(path)
+	Cfg, err = ini.Load("../../config/schedule/schedule.init")
 	if err != nil {
 		log.Fatal("Fail to Load ‘conf/app.ini’:", err)
 	}
+	timeout := time.After(5 * time.Second)
+	pollInt := time.Second
+
+	for {
+		select {
+
+		case <-timeout:
+			fmt.Println("There's no more time to this. Exiting!")
+			time.Sleep(pollInt)
+		default:
+			fmt.Println("still waiting")
+		}
+
+	}
+
 	return Cfg
 	////直接读取
 	//RunMode := Cfg.Section("").Key("RUN_MODE").MustString("debug")

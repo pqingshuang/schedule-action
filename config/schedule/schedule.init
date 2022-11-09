@@ -1,5 +1,6 @@
 [schedule_001]
-interval = 0
+interval = 10 //minute, by default
+nextTime='now' //can be now, also can be a future start time
 worker = 'worker/always/main'
 argument = 'config/source/always'
 
