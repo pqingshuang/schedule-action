@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
+	"time"
 )
 
 func test() {
@@ -13,4 +14,7 @@ func test() {
 	}
 	fmt.Printf(string(out))
 
+
+func main() {
+	test()
 }
