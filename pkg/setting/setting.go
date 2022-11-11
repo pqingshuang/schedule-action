@@ -15,7 +15,8 @@ type schedule struct {
 }
 
 // func getAddress([]*ini.Section,int )
-// var scheduleChan chan schedule
+var scheduleChan chan schedule
+
 func InitSetting(scheduleDir string) *ini.File {
 	var err error
 
@@ -24,14 +25,19 @@ func InitSetting(scheduleDir string) *ini.File {
 		log.Fatal("Fail to Load ‘conf/app.ini’:", err)
 	}
 
-	server := Cfg.Sections()
-	for _, v := range server {
-		//
-		fmt.Println(v.Name())
-		//for b, a := range v.Keys() {
-		//	fmt.Println(b, a)
-		//}
+	sections := Cfg.SectionStrings()
+	//fmt.Println(server)
+	for _, s := range sections {
+		//get section name
+		//fmt.Println(s)
+		schedule1 := schedule{}
+
+		schedule1.Worker = Cfg.Section(s).Key("worker").String()
+		schedule1.Argument = Cfg.Section(s).Key("argument").String()
+		fmt.Println(schedule1, s)
+		go func() { scheduleChan <- schedule1 }()
 	}
+	//close(scheduleChan)
 	//fmt.Println(Map(server,))
 	return Cfg
 	////直接读取
