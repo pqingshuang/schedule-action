@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"gopkg.in/ini.v1"
 	"log"
-	"os"
-	"time"
 )
 
 var Cfg *ini.File
@@ -16,32 +14,25 @@ type schedule struct {
 	Argument string //path to source configure file, one file may contains many sources
 }
 
-func InitSetting() *ini.File {
+// func getAddress([]*ini.Section,int )
+// var scheduleChan chan schedule
+func InitSetting(scheduleDir string) *ini.File {
 	var err error
-	path, err := os.Getwd()
-	if err != nil {
-		log.Println(err)
-	}
-	fmt.Println(path)
-	Cfg, err = ini.Load("../../config/schedule/schedule.init")
+
+	Cfg, err = ini.Load(scheduleDir)
 	if err != nil {
 		log.Fatal("Fail to Load ‘conf/app.ini’:", err)
 	}
-	timeout := time.After(5 * time.Second)
-	pollInt := time.Second
 
-	for {
-		select {
-
-		case <-timeout:
-			fmt.Println("There's no more time to this. Exiting!")
-			time.Sleep(pollInt)
-		default:
-			fmt.Println("still waiting")
-		}
-
+	server := Cfg.Sections()
+	for _, v := range server {
+		//
+		fmt.Println(v.Name())
+		//for b, a := range v.Keys() {
+		//	fmt.Println(b, a)
+		//}
 	}
-
+	//fmt.Println(Map(server,))
 	return Cfg
 	////直接读取
 	//RunMode := Cfg.Section("").Key("RUN_MODE").MustString("debug")

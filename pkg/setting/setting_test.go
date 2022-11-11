@@ -5,5 +5,5 @@ import (
 )
 
 func TestInitialSetting(t *testing.T) {
-	InitSetting()
+	InitSetting("../../config/schedule/schedule.init")
 }

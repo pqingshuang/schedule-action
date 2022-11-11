@@ -6,9 +6,6 @@ import (
 	"log"
 	"os/exec"
 	"sync"
-	"time"
-	"github.com/robfig/cron"
-
 )
 
 type Schedule struct {
@@ -17,19 +14,12 @@ type Schedule struct {
 	Argument string //path to source configure file, one file may contains many sources
 }
 
-
-
-
-
 func main() {
 	//setting.InitSetting()，every minute
-	c := cron.New()
-	c.AddFunc("1 * * * * *", setting.InitSetting())
-	c.Start()
-
+	setting.InitSetting("config/schedule/schedule.init")
 	//check schedule that need to be done based on interval
 
-	//send it to channel, below use slice to test first
+	//send it to channel, or just use slices
 
 	//get all behavior need to be done
 	schedules := make([]Schedule, 1)
@@ -52,20 +42,6 @@ func main() {
 	}
 	//closer
 	wg.Wait()
-
-	for {
-		select {
-
-		case <-timeout:
-			fmt.Println("There's no more time to this. Exiting!")
-			time.Sleep(pollInt)
-		default:
-			fmt.Println("still waiting")
-		}
-
-	}
-
-}
 }
 
 //func main() {
