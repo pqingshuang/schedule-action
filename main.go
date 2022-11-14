@@ -8,7 +8,6 @@ import (
 	"sync"
 )
 
-//
 //type Schedule struct {
 //	Interval int    //executive interval
 //	Worker   string //path to worker
@@ -17,7 +16,7 @@ import (
 
 func main() {
 	//setting.InitSetting()，every minute
-	setting.InitSetting("config/schedule/schedule.init")
+	go setting.InitSetting("config/schedule/schedule.init")
 	//check schedule that need to be done based on interval
 
 	//send it to channel, or just use slices
@@ -31,19 +30,27 @@ func main() {
 		wg.Add(1)
 		go func(s setting.Schedule) {
 			defer wg.Done()
-			workerPath := s.Worker
+			workerPath := s.Worker()
 			//source_path := s.Argument
-			out, err := exec.Command(workerPath).CombinedOutput()
+			fmt.Println(workerPath)
+			//worker.A()
+			out, err := exec.Command("worker/always/main").CombinedOutput()
+
 			if err != nil {
 				log.Fatal(err)
+			} else {
+				fmt.Printf(string(out))
 			}
-			fmt.Printf(string(out))
 
 		}(s)
 	}
 	//closer
+
 	wg.Wait()
 	close(setting.ScheduleChan)
+
+	return
+
 }
 
 //func main() {

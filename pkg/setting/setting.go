@@ -7,6 +7,7 @@ import (
 )
 
 var Cfg *ini.File
+var ScheduleChan = make(chan Schedule, 10)
 
 type Schedule struct {
 	interval int    `json:"interval,omitempty"` //executive interval
@@ -14,7 +15,13 @@ type Schedule struct {
 	argument string `json:"argument,omitempty"` //path to source configure file, one file may contains many sources
 }
 
-var ScheduleChan chan Schedule
+func (s *Schedule) Worker() string {
+	return s.worker
+}
+
+func (s *Schedule) SetWorker(worker string) {
+	s.worker = worker
+}
 
 func InitSetting(scheduleDir string) *ini.File {
 	var err error
@@ -35,6 +42,7 @@ func InitSetting(scheduleDir string) *ini.File {
 		schedule1.argument = Cfg.Section(s).Key("argument").String()
 		fmt.Println(schedule1, s)
 		go func() { ScheduleChan <- schedule1 }()
+		//ScheduleChan <- schedule1
 	}
 	//close(ScheduleChan)
 	//fmt.Println(Map(server,))
