@@ -8,11 +8,12 @@ import (
 	"sync"
 )
 
-type Schedule struct {
-	Interval int    //executive interval
-	Worker   string //path to worker
-	Argument string //path to source configure file, one file may contains many sources
-}
+//
+//type Schedule struct {
+//	Interval int    //executive interval
+//	Worker   string //path to worker
+//	Argument string //path to source configure file, one file may contains many sources
+//}
 
 func main() {
 	//setting.InitSetting()，every minute
@@ -22,13 +23,13 @@ func main() {
 	//send it to channel, or just use slices
 
 	//get all behavior need to be done
-	schedules := make([]Schedule, 1)
-	schedules[0] = Schedule{0, "worker/always/main", ""}
+	//schedules := make([]Schedule, 1)
+	//schedules[0] = Schedule{0, "worker/always/main", ""}
 	var wg sync.WaitGroup
 	//goroutine doing worker
-	for _, s := range schedules {
+	for s := range setting.ScheduleChan {
 		wg.Add(1)
-		go func(s Schedule) {
+		go func(s setting.Schedule) {
 			defer wg.Done()
 			workerPath := s.Worker
 			//source_path := s.Argument
@@ -42,6 +43,7 @@ func main() {
 	}
 	//closer
 	wg.Wait()
+	close(setting.ScheduleChan)
 }
 
 //func main() {

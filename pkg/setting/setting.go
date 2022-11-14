@@ -8,14 +8,13 @@ import (
 
 var Cfg *ini.File
 
-type schedule struct {
-	Interval int    //executive interval
-	Worker   string //path to worker
-	Argument string //path to source configure file, one file may contains many sources
+type Schedule struct {
+	interval int    `json:"interval,omitempty"` //executive interval
+	worker   string `json:"worker,omitempty"`   //path to worker
+	argument string `json:"argument,omitempty"` //path to source configure file, one file may contains many sources
 }
 
-// func getAddress([]*ini.Section,int )
-var scheduleChan chan schedule
+var ScheduleChan chan Schedule
 
 func InitSetting(scheduleDir string) *ini.File {
 	var err error
@@ -30,14 +29,14 @@ func InitSetting(scheduleDir string) *ini.File {
 	for _, s := range sections {
 		//get section name
 		//fmt.Println(s)
-		schedule1 := schedule{}
+		schedule1 := Schedule{}
 
-		schedule1.Worker = Cfg.Section(s).Key("worker").String()
-		schedule1.Argument = Cfg.Section(s).Key("argument").String()
+		schedule1.worker = Cfg.Section(s).Key("worker").String()
+		schedule1.argument = Cfg.Section(s).Key("argument").String()
 		fmt.Println(schedule1, s)
-		go func() { scheduleChan <- schedule1 }()
+		go func() { ScheduleChan <- schedule1 }()
 	}
-	//close(scheduleChan)
+	//close(ScheduleChan)
 	//fmt.Println(Map(server,))
 	return Cfg
 	////直接读取
