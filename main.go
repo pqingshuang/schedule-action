@@ -3,7 +3,6 @@ package main
 import (
 	"DataTransformation/pkg/setting"
 	"fmt"
-	"log"
 	"os/exec"
 	"sync"
 )
@@ -16,15 +15,14 @@ import (
 
 func main() {
 	//setting.InitSetting()，every minute
-	go setting.InitSetting("config/schedule/schedule.init")
-	//check schedule that need to be done based on interval
-
-	//send it to channel, or just use slices
-
-	//get all behavior need to be done
-	//schedules := make([]Schedule, 1)
-	//schedules[0] = Schedule{0, "worker/always/main", ""}
 	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+
+		setting.InitSetting("config/schedule/schedule.init")
+		wg.Done()
+	}()
+
 	//goroutine doing worker
 	for s := range setting.ScheduleChan {
 		wg.Add(1)
@@ -32,14 +30,14 @@ func main() {
 			defer wg.Done()
 			workerPath := s.Worker()
 			//source_path := s.Argument
-			fmt.Println(workerPath)
+			//fmt.Println('a')
 			//worker.A()
-			out, err := exec.Command("worker/always/main").CombinedOutput()
+			_, err := exec.Command(workerPath).CombinedOutput()
 
 			if err != nil {
-				log.Fatal(err)
-			} else {
-				fmt.Printf(string(out))
+				//log.Fatal(err)
+				fmt.Println(err)
+
 			}
 
 		}(s)
@@ -47,7 +45,7 @@ func main() {
 	//closer
 
 	wg.Wait()
-	close(setting.ScheduleChan)
+	//close(setting.ScheduleChan)
 
 	return
 
