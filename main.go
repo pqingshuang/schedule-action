@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os/exec"
 	"sync"
+	"time"
 )
 
 //type Schedule struct {
@@ -17,10 +18,22 @@ func main() {
 	//setting.InitSetting()，every minute
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go func() {
 
-		setting.InitSetting("config/schedule/schedule.init")
-		wg.Done()
+	ticker := time.NewTicker(time.Second)
+	quit := make(chan struct{})
+
+	go func() {
+		defer wg.Done()
+		for {
+			select {
+			case <-ticker.C:
+				// do stuff
+				setting.Setting("config/schedule/schedule.init")
+			case <-quit:
+				ticker.Stop()
+				return
+			}
+		}
 	}()
 
 	//goroutine doing worker

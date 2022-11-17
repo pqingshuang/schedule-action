@@ -1,16 +1,22 @@
+worker   = 
+argument = 
+interval = 
+nextTime = 2022-11-17 18:11
+
 [schedule_001]
 interval = 10
-nextTime='now'
-worker = 'worker/always/main'
-argument = 'config/source/always'
-
+worker   = worker/always/main
+argument = config/source/always
+nextTime = 2022-11-17 18:21
 
 [schedule_002]
-interval = 0
-worker = '111'
-argument = ''
+interval = 2
+worker   = 111
+argument = 
+nextTime = 2022-11-17 18:13
 
 [schedule_003]
-interval = 0
-worker = ''
-argument = ''
+interval = 1
+worker   = 
+argument = 
+nextTime = 2022-11-17 18:12
