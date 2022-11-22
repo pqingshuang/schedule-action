@@ -10,31 +10,33 @@ import (
 var ScheduleChan = make(chan Schedule, 10)
 
 type Schedule struct {
-	interval time.Duration `json:"interval,omitempty"` //executive interval
-	worker   string        `json:"worker,omitempty"`   //path to worker
-	nextTime time.Time
-	argument string `json:"argument,omitempty"` //path to source configure file, one file may contains many sources
-}
-type section ini.Section
-
-func newSchedule 
-func (s *Schedule) Interval() time.Duration {
-	return s.interval
+	Interval time.Duration `ini:"Interval"` //executive Interval
+	Worker   string        `ini:"worker"`   //path to worker
+	NextTime time.Time     `ini:"nextTime"`
+	Argument string        `ini:"argument"` //path to source configure file, one file may contains many sources
 }
 
+//type section ini.Section
+
+// func newSchedule
+//
+//	func (s *Schedule) Interval() time.Duration {
+//		return s.Interval
+//	}
 func (s *Schedule) SetInterval(intervalNumber int) {
 	var interval time.Duration
 	interval = time.Duration(intervalNumber) * time.Minute
-	s.interval = interval
+	s.Interval = interval
 }
 
-func (s *Schedule) Worker() string {
-	return s.worker
-}
-
-func (s *Schedule) SetWorker(worker string) {
-	s.worker = worker
-}
+//
+//func (s *Schedule) Worker() string {
+//	return s.worker
+//}
+//
+//func (s *Schedule) SetWorker(worker string) {
+//	s.worker = worker
+//}
 
 func Setting(scheduleDir string) {
 	var err error
@@ -50,31 +52,35 @@ func Setting(scheduleDir string) {
 		//TODO skip default section
 		//filter current program that need to run
 		schedule1 := Schedule{}
-
-		schedule1.worker = Cfg.Section(s).Key("worker").String()
-		schedule1.argument = Cfg.Section(s).Key("argument").String()
-		idx, _ := Cfg.Section(s).Key("interval").Int()
+		//fmt.Println(Cfg.Section(s).Key("nextTime").TimeFormat("2006-01-02 15:04"))
+		//a, _ := Cfg.Section(s).Key("nextTime").TimeFormat("2006-01-02 15:04")
+		//
+		//fmt.Println(Cfg.Section(s).MapTo(schedule1), *schedule1, a)
+		schedule1.Worker = Cfg.Section(s).Key("worker").String()
+		schedule1.Argument = Cfg.Section(s).Key("argument").String()
+		idx, _ := Cfg.Section(s).Key("Interval").Int()
 		schedule1.SetInterval(idx)
 		if Cfg.Section(s).HasKey("nextTime") {
 			timeString := Cfg.Section(s).Key("nextTime").String()
-			schedule1.nextTime = str2time(timeString)
+			schedule1.NextTime = str2time(timeString)
 		} else {
-			schedule1.nextTime = time.Now()
-			Cfg.Section(s).Key("nextTime").SetValue(schedule1.nextTime.Format("2006-01-02 15:04"))
+			schedule1.NextTime = time.Now()
+			Cfg.Section(s).Key("nextTime").SetValue(schedule1.NextTime.Format(time.RFC3339))
 			Cfg.SaveTo(scheduleDir)
 
 		}
-		// Only fetch worker whose next run time is before now, and change nextTime to nextTime+interval
+		// Only fetch worker whose next run time is before now, and change nextTime to nextTime+Interval
 		// and save to file
-		if schedule1.nextTime.Before(time.Now()) {
+		if schedule1.NextTime.Before(time.Now()) {
+			// send to schedule channl to trigger worker
 			ScheduleChan <- schedule1
-			schedule1.nextTime = schedule1.nextTime.Add(schedule1.interval)
-			Cfg.Section(s).Key("nextTime").SetValue(schedule1.nextTime.Format("2006-01-02 15:04"))
+			schedule1.NextTime = time.Now().UTC().Add(schedule1.Interval)
+			Cfg.Section(s).Key("nextTime").SetValue(schedule1.NextTime.Format(time.RFC3339))
 			Cfg.SaveTo(scheduleDir)
 
 		}
 
-		//ScheduleChan <- schedule1
+		ScheduleChan <- schedule1
 	}
 
 	//return Cfg
@@ -84,7 +90,7 @@ func str2time(dateString string) time.Time {
 	// Parse the date string into Go's time object
 	// The 1st param specifies the format,
 	// 2nd is our date string
-	myDate, err := time.Parse("2006-01-02 15:04", dateString)
+	myDate, err := time.Parse(time.RFC3339, dateString)
 	if err != nil {
 		panic(err)
 	}

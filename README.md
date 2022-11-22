@@ -11,4 +11,4 @@
 - [ ] when it is on but not active, send to chann to invoke new gorounte
 - [ ] when goroutine exit because of error, change file from active/2, 0 is deactivate by user, 1 is active and 
 run, 2 is active but exit because of error
-- [ ] not long connection, if based on interval, run and reocrd error and exit
+- [ ] not long connection, if based on Interval, run and reocrd error and exit

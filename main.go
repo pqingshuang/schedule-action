@@ -23,7 +23,10 @@ func main() {
 	quit := make(chan struct{})
 
 	go func() {
-		defer wg.Done()
+		defer func() {
+			wg.Done()
+			ticker.Stop()
+		}()
 		for {
 			select {
 			case <-ticker.C:
@@ -41,7 +44,7 @@ func main() {
 		wg.Add(1)
 		go func(s setting.Schedule) {
 			defer wg.Done()
-			workerPath := s.Worker()
+			workerPath := s.Worker
 			//source_path := s.Argument
 			//fmt.Println('a')
 			//worker.A()
