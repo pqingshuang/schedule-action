@@ -16,13 +16,34 @@ type Schedule struct {
 	Argument string        `ini:"argument"` //path to source configure file, one file may contains many sources
 }
 
-//type section ini.Section
+type section struct {
+	*ini.Section
+}
+type RawSchedule interface {
+	mapTo() *Schedule
+}
+
+func (a *section) mapTo() *Schedule {
+	schedule1 := &Schedule{}
+	//fmt.Println(Cfg.Section(s).Key("nextTime").TimeFormat("2006-01-02 15:04"))
+	//a, _ := Cfg.Section(s).Key("nextTime").TimeFormat("2006-01-02 15:04")
+	//
+	//fmt.Println(Cfg.Section(s).MapTo(schedule1), *schedule1, a)
+	schedule1.Worker = a.Key("worker").String()
+	schedule1.Argument = a.Key("argument").String()
+	idx, _ := a.Key("Interval").Int()
+	schedule1.SetInterval(idx)
+	return schedule1
+}
+func formatSchedule(schedule1 RawSchedule) *Schedule {
+
+	return schedule1.mapTo()
+}
 
 // func newSchedule
-//
-//	func (s *Schedule) Interval() time.Duration {
-//		return s.Interval
-//	}
+func (s *Schedule) GetInterval() time.Duration {
+	return s.Interval
+}
 func (s *Schedule) SetInterval(intervalNumber int) {
 	var interval time.Duration
 	interval = time.Duration(intervalNumber) * time.Minute
@@ -51,37 +72,31 @@ func Setting(scheduleDir string) {
 	for _, s := range sections {
 		//TODO skip default section
 		//filter current program that need to run
-		schedule1 := Schedule{}
-		//fmt.Println(Cfg.Section(s).Key("nextTime").TimeFormat("2006-01-02 15:04"))
-		//a, _ := Cfg.Section(s).Key("nextTime").TimeFormat("2006-01-02 15:04")
-		//
-		//fmt.Println(Cfg.Section(s).MapTo(schedule1), *schedule1, a)
-		schedule1.Worker = Cfg.Section(s).Key("worker").String()
-		schedule1.Argument = Cfg.Section(s).Key("argument").String()
-		idx, _ := Cfg.Section(s).Key("Interval").Int()
-		schedule1.SetInterval(idx)
-		if Cfg.Section(s).HasKey("nextTime") {
-			timeString := Cfg.Section(s).Key("nextTime").String()
+		section := &section{Cfg.Section(s)}
+
+		schedule1 := formatSchedule(section)
+
+		if section.HasKey("nextTime") {
+			timeString := section.Key("nextTime").String()
 			schedule1.NextTime = str2time(timeString)
 		} else {
 			schedule1.NextTime = time.Now()
-			Cfg.Section(s).Key("nextTime").SetValue(schedule1.NextTime.Format(time.RFC3339))
-			Cfg.SaveTo(scheduleDir)
+			section.Key("nextTime").SetValue(schedule1.NextTime.Format(time.RFC3339))
 
 		}
 		// Only fetch worker whose next run time is before now, and change nextTime to nextTime+Interval
 		// and save to file
 		if schedule1.NextTime.Before(time.Now()) {
 			// send to schedule channl to trigger worker
-			ScheduleChan <- schedule1
+			ScheduleChan <- *schedule1
 			schedule1.NextTime = time.Now().UTC().Add(schedule1.Interval)
-			Cfg.Section(s).Key("nextTime").SetValue(schedule1.NextTime.Format(time.RFC3339))
-			Cfg.SaveTo(scheduleDir)
+			section.Key("nextTime").SetValue(schedule1.NextTime.Format(time.RFC3339))
 
 		}
 
-		ScheduleChan <- schedule1
+		ScheduleChan <- *schedule1
 	}
+	Cfg.SaveTo(scheduleDir)
 
 	//return Cfg
 }
