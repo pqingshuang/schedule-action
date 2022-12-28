@@ -188,4 +188,5 @@ cython_debug/
 #excle
 *.xlsx
 config/*
-!config/schedule/scjed
+!config/schedule/schedule_template.init
+worker/always/config_influxdb/*
