@@ -1,9 +1,9 @@
 package setting
 
 import (
-	"fmt"
 	"gopkg.in/ini.v1"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -13,7 +13,7 @@ type Schedule struct {
 	Interval time.Duration `ini:"Interval"` //executive Interval
 	Worker   string        `ini:"worker"`   //path to worker
 	NextTime time.Time     `ini:"nextTime"`
-	Argument string        `ini:"argument"` //path to source configure file, one file may contains many sources
+	Argument []string      `ini:"argument"` //path to source configure file, one file may contains many sources
 }
 
 type section struct {
@@ -30,7 +30,9 @@ func (a *section) mapTo() *Schedule {
 	//
 	//fmt.Println(Cfg.Section(s).MapTo(schedule1), *schedule1, a)
 	schedule1.Worker = a.Key("worker").String()
-	schedule1.Argument = a.Key("argument").String()
+	schedule1.Argument = strings.Split(a.Key("argument").String(), " ")
+	//fmt.Println(a.Key("argument").String())
+	//fmt.Println(strings.Split(a.Key("argument").String(), " ")[1])
 	idx, _ := a.Key("Interval").Int()
 	schedule1.SetInterval(idx)
 	return schedule1
@@ -59,7 +61,7 @@ func (s *Schedule) SetInterval(intervalNumber int) {
 //	s.worker = worker
 //}
 
-func Setting(scheduleDir string) {
+func LoadSetting(scheduleDir string) {
 	var err error
 	var Cfg *ini.File
 	Cfg, err = ini.Load(scheduleDir)
@@ -94,7 +96,7 @@ func Setting(scheduleDir string) {
 
 		}
 
-		ScheduleChan <- *schedule1
+		//ScheduleChan <- *schedule1
 	}
 	Cfg.SaveTo(scheduleDir)
 
@@ -109,6 +111,6 @@ func str2time(dateString string) time.Time {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("My Date Reformatted:\t", myDate)
+	//fmt.Println("My Date Reformatted:\t", myDate)
 	return myDate
 }

@@ -31,7 +31,7 @@ func main() {
 			select {
 			case <-ticker.C:
 				// do stuff
-				setting.Setting("config/schedule/schedule.init")
+				setting.LoadSetting("config/schedule/schedule.init")
 			case <-quit:
 				ticker.Stop()
 				return
@@ -45,10 +45,12 @@ func main() {
 		go func(s setting.Schedule) {
 			defer wg.Done()
 			workerPath := s.Worker
-			//source_path := s.Argument
+			arguments := s.Argument
 			//fmt.Println('a')
 			//worker.A()
-			_, err := exec.Command(workerPath).CombinedOutput()
+			fmt.Println(workerPath, arguments)
+			_, err := exec.Command(workerPath, arguments...).CombinedOutput()
+			//todo, cannot get exec logs, need to find a way to log scheduler running process
 
 			if err != nil {
 				//log.Fatal(err)

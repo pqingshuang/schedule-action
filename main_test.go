@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
+	"os/exec"
+	"strings"
 	"testing"
-	"time"
 )
 
 func Test_test(t *testing.T) {
@@ -15,8 +16,15 @@ func Test_test(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			main()
-			func() { fmt.Println(time.Now()) }()
+			cmd1, _ := exec.Command("pwd").Output()
+			cmd, err := exec.Command("python3", "worker/always/config_influxdb/main.py", "--host", "192.168.100.214", "--port", "8086", "--database", "ArupDemo", "--measurement", "OTP_RealTime").Output()
+			a := "worker/always/config_influxdb/main.py --host 192.168.100.214 --port 8086 --database ArupDemo --measurement OTP_RealTime"
+			func() {
+				fmt.Println(string(cmd))
+				fmt.Println(err)
+				fmt.Printf(string(cmd1))
+				fmt.Println(strings.Split(a, " ")[1])
+			}()
 		})
 	}
 }
